@@ -304,6 +304,42 @@ the form itself. Everything it needs already exists: the schema and API
 
   When you finish, run `npm run check` and show me the output.
 
+
+  ### prompt #16
+  MODEL: Sonnet 5.5
+  TOKEN: 100k
+
+  documentation only. Don't change anything under src/. If you find a bug
+  while documenting, tell me and leave the code alone.
+
+  Describe the project as it really is now. Read the code first and check every
+  claim against it: file names, script names, the rules in the validation table and
+  the test counts must match what is in the repo.
+
+  I want:
+  - README.md, final version: what the project is, quick start and scripts, how it
+    works (fetch schema -> validate -> render -> submit), project structure, the API
+    contract, the mock API, the validation table, testing, code quality, and a short
+    section on how AI was used that points to ai.md.
+  - docs/architecture.md: one section per decision, each saying why and not only
+    what: the layers and who may import from whom, where the design system plugs in,
+    schema validated at the boundary, validators as pure functions, the type-to-
+    component switch, form state, loading state, mocking with MSW, messages and RTL.
+  - docs/screenshots/: run `npm run dev`, open the app with Playwright and take two
+    screenshots, the filled form and the form showing validation errors.
+    Reference them from the README.
+  - CLAUDE.md: short, since it is loaded in every session. Commands, the rules of
+    the codebase, how tests are written, git rules.
+  - .claude/skills/add-field-type/SKILL.md: the exact steps to add a new field type
+    (schema, validator, design-system component, field component, FieldRenderer
+    case, tests), written from how the existing four types are done.
+
+  Do not edit ai.md, I write that one myself.
+
+  Keep the writing plain and short. No marketing words, no claims you did not check.
+
+  When you finish, run `npm run check` and show me the output.
+
 ## 4. Token Usage Monitoring
 
 I do watch token usage, and it affects which model I pick and how I write prompts. But the goal is not the smallest number. I want a good balance between quality, reasoning, speed and cost.
