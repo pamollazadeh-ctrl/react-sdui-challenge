@@ -51,6 +51,28 @@ The split keeps the rules free of any form library, and their tests need no
 rendering. The client rules mirror what the server enforces. They do not replace it:
 the mock backend also checks required fields and answers `422`.
 
+## Mapping a type to a component
+
+`FieldRenderer` is a `switch` on `field.type` with a `never` check in the default
+branch. Compared with a lookup object, TypeScript narrows the field for each
+component with no casts, and a new type that is not handled fails the build.
+
+## Form state
+
+React Hook Form keeps the values. Each field component subscribes with
+`useController`, so typing in one field does not re-render the others. All behaviour
+lives in `useDynamicForm`. `DynamicForm` only renders.
+
+File fields hold a `File[]` in form state. The native input is cleared after each
+selection, so the visible list is the single source of truth and the same file can
+be picked again after it was removed.
+
+## Loading state
+
+`useFormSchema` returns a discriminated union: `loading`, `error` or `success` with
+the schema. Impossible combinations, such as an error together with a schema, cannot
+be represented. The request is aborted on unmount.
+
 ## Mocking with MSW
 
 Requests are intercepted at the network level, so the application code is the same
@@ -65,3 +87,14 @@ multipart upload without custom middleware. Upload is the centre of this task.
 All user-facing text is in `constants/messages.ts`. The UI is Persian and
 right-to-left. Layout uses logical CSS properties (`margin-inline`, `text-align:
 start`), so it follows the document direction.
+
+## Trade-offs
+
+- **Light theme only.** The schema sends absolute text colours (`#000000`), which
+  would be unreadable on a dark surface.
+- **Native `<select>` and file input.** They bring keyboard, screen-reader and mobile
+  behaviour for free. The price is less control over their look.
+- **No data-fetching library.** There is one GET and one POST. A small hook is
+  easier to read than a cache layer for this size.
+- **`cols` on a textarea is ignored.** Controls are always full width so the form
+  stays responsive.

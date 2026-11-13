@@ -259,6 +259,51 @@ behaviour, and wait for my answer.
 
 When you finish, run `npm run check` and show me the output.
 
+### prompt #15
+MODEL: Sonnet 5.5
+TOKEN: 0.9M - i check all histories about project
+
+the form itself. Everything it needs already exists: the schema and API
+  client (step 2), the design system (step 3) and the validators (step 4).
+  Use them as they are. Don't change those folders; if something is missing there,
+  stop and tell me instead of working around it.
+
+  Read README.md again for the behaviour, then src/design-system/index.ts and
+  validation/buildValidator.ts so you know what you are building on.
+
+  I want, under src/features/dynamic-form:
+  - hooks/useFormSchema.ts: fetches the schema and returns a discriminated union
+    (loading / error / success). Abort the request on unmount.
+  - hooks/useDynamicForm.ts: all the form behaviour (React Hook Form + the Zod
+    resolver, default values, submit, server errors). The components only render.
+  - components/FieldRenderer.tsx: a switch on field.type with a `never` check in the
+    default branch, so a new type that is not handled fails the build.
+  - components/fields/: InputField, TextareaField, SelectField, FileField. Each one
+    translates a schema field into props of a design-system component. Each subscribes
+    with useController, so typing in one field does not re-render the others.
+  - components/DynamicForm.tsx and DynamicFormLoader.tsx (loading, load error with
+    retry, the form, success message).
+  - utils/: default values from the schema, toFormData for the multipart submit, and
+    an allow-list for the inline styles the server sends (margin, padding,
+    borderRadius are fine; position and display are not).
+  - src/app/App.tsx and main.tsx to mount it. Persian text, right-to-left, logical
+    CSS properties.
+
+  Behaviour: validate on blur, then on every change once the field has an error.
+  On submit, focus the first invalid field. A 422 with fieldErrors from the server is
+  shown on the matching fields. The submit button is disabled while sending.
+  A removed file can be picked again.
+
+  Tests in the same change, through DynamicFormLoader and driven like a user with
+  Testing Library, queries by role and label only: rendering from the schema,
+  validation, file upload and remove, successful submit, 422 from the server, load
+  failure and retry. Unit tests for toFormData and the style allow-list.
+
+  Before you write code, show me the component tree and what each hook returns,
+  and wait for my OK.
+
+  When you finish, run `npm run check` and show me the output.
+
 ## 4. Token Usage Monitoring
 
 I do watch token usage, and it affects which model I pick and how I write prompts. But the goal is not the smallest number. I want a good balance between quality, reasoning, speed and cost.
