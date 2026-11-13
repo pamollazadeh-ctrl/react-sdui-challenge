@@ -35,3 +35,7 @@ Read `README.md` for the overview and `docs/architecture.md` for the decisions.
 - Conventional Commits, see `docs/commit-convention.md`. One logical step per commit.
 - Do not commit, push or change branches unless asked.
 - `ai.md` is written by the author. Do not edit it.
+
+## Skills
+
+- `add-field-type`: use it when asked to support a new field type from the server schema.

@@ -6,6 +6,8 @@ enters and sends the result back as `multipart/form-data`, files included.
 
 Adding or changing a field is a server-side change. The client needs no release.
 
+![The rendered car form](docs/screenshots/form.png)
+
 ## Quick start
 
 Requires Node 20 or newer (`.nvmrc`).
@@ -134,3 +136,11 @@ Tests query by role and label, so they also check the accessibility wiring.
 - Prettier for formatting.
 - Husky + lint-staged run the linter and Prettier on staged files before each commit.
 - Commits follow [Conventional Commits](docs/commit-convention.md).
+
+## Working with AI on this repo
+
+- [`CLAUDE.md`](CLAUDE.md) holds the project rules an AI assistant reads in every
+  session.
+- [`.claude/skills/add-field-type`](.claude/skills/add-field-type/SKILL.md) is a
+  project skill: the exact checklist for adding a new field type.
+- [`ai.md`](ai.md) is the AI usage report for this challenge.
