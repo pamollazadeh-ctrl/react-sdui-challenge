@@ -1,32 +1,36 @@
-# React + TypeScript + Vite
+# Dynamic Form Builder
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A React form whose structure comes from the server. The app asks the API for a form
+definition (fields, options, validation rules), renders it, validates what the user
+enters and sends the result back as `multipart/form-data`, files included.
 
-Currently, two official plugins are available:
+Adding or changing a field is a server-side change. The client needs no release.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Quick start
 
-## React Compiler
+Requires Node 20 or newer (`.nvmrc`).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev        # http://localhost:5173, API mocked by MSW
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+| Script               | What it does                                  |
+| -------------------- | --------------------------------------------- |
+| `npm run dev`        | Dev server with the mock API                  |
+| `npm run build`      | Type-check, then production build             |
+| `npm run test`       | Unit and component tests (Vitest), single run |
+| `npm run test:watch` | Tests in watch mode                           |
+| `npm run typecheck`  | `tsc -b`                                      |
+| `npm run lint`       | Oxlint with type-aware rules                  |
+| `npm run format`     | Prettier, write                               |
+| `npm run check`      | Type-check, lint, format check and tests      |
+
+## Code quality
+
+- TypeScript in strict mode, plus `noUncheckedIndexedAccess`. No `any`.
+- Oxlint with type-aware rules, React hooks and `jsx-a11y`. typescript-eslint does
+  not support TypeScript 7 yet, which is why the linter is Oxlint and not ESLint.
+- Prettier for formatting.
+- Husky + lint-staged run the linter and Prettier on staged files before each commit.
+- Commits follow [Conventional Commits](docs/commit-convention.md).

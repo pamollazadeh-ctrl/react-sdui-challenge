@@ -1,0 +1,7 @@
+dist
+coverage
+package-lock.json
+public/mockServiceWorker.js
+# Hand-written report and the reviewers' template: never reformat them.
+ai.md
+sample.ai.md
