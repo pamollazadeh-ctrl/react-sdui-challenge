@@ -1,0 +1,18 @@
+.page {
+  min-height: 100svh;
+  padding: var(--space-8) var(--space-4);
+}
+
+.card {
+  max-width: 640px;
+  padding: var(--space-6);
+  margin-inline: auto;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-title);
+}

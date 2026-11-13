@@ -1,62 +1,146 @@
-Dynamic Form Builder
-============
+# Dynamic Form Builder
 
-## Task Description
+A React form whose structure comes from the server. The app asks the API for a form
+definition (fields, options, validation rules), renders it, validates what the user
+enters and sends the result back as `multipart/form-data`, files included.
 
-We want to build a dynamic form builder in React that fetches its structure from a server and displays it on a page. The form will include three input types:
+Adding or changing a field is a server-side change. The client needs no release.
 
-- Text input
-- Select box
-- File upload field
+![The rendered car form](docs/screenshots/form.png)
 
-## Key Steps:
+## Quick start
 
-1. API Request: Send a request to retrieve the form structure from the server, which includes field types, labels, options, and validation rules.
+Requires Node 20 or newer (`.nvmrc`).
 
-2. Render the Form: Dynamically generate the form on the page based on the retrieved structure, creating the appropriate input fields (text, select, and file fields).
-
-3. Submit Button: Add a submit button that collects all form data (including file uploads) when clicked.
-
-4. Form Validation: Ensure that all required fields are filled out and meet validation rules (e.g., text length, required selections, file formats) before allowing submission.
-
-5. Send Form Data: Once submitted, package and send the form data back to the server via another API call.
-
-This approach allows for flexible forms that can be easily updated server-side without modifying the app’s code.
-
-
-Sample response for getting form (Feel free to restructure the response if you think it would enhance clarity or effectiveness):
-
-```
-{"fields":[{"label":"برند:","name":"brand","props":{"color":"#000000","placeholder":"برند ماشین را وارد کنید","size":"large","type":"text"},"style":{"borderRadius":"5px","margin":"10px 0","padding":"8px"},"type":"input"},{"label":"مدل:","name":"model","props":{"color":"#000000","placeholder":"مدل ماشین را وارد کنید","size":"medium","type":"text"},"style":{"borderRadius":"5px","margin":"10px 0","padding":"8px"},"type":"input"},{"label":"سال ساخت:","name":"year","props":{"max":"2024","min":"1900","placeholder":"سال ساخت را وارد کنید","type":"number"},"style":{"borderRadius":"5px","margin":"10px 0","padding":"8px"},"type":"input"},{"label":"نوع سوخت:","name":"fuel_type","props":{"options":[{"label":"بنزین","value":"بنزین"},{"label":"گاز","value":"گاز"},{"label":"دیزل","value":"دیزل"},{"label":"الکتریکی","value":"الکتریکی"}]},"style":{"borderRadius":"5px","margin":"10px 0","padding":"8px"},"type":"select"},{"label":"رنگ ماشین:","name":"color","props":{"placeholder":"رنگ ماشین را وارد کنید","type":"text"},"style":{"borderRadius":"5px","margin":"10px 0","padding":"8px"},"type":"input"},{"label":"تعداد مالکین قبلی:","name":"previous_owners","props":{"min":"0","placeholder":"تعداد مالکین قبلی را وارد کنید","type":"number"},"style":{"borderRadius":"5px","margin":"10px 0","padding":"8px"},"type":"input"},{"label":"توضیحات وضعیت فنی:","name":"technical_condition","props":{"cols":50,"placeholder":"توضیحات درباره وضعیت فنی ماشین","rows":4},"style":{"borderRadius":"5px","margin":"10px 0","padding":"10px"},"type":"textarea"},{"label":"تصاویر ماشین:","name":"car_images","props":{"accept":"image/*","maxSize":"5MB","multiple":true},"style":{"margin":"10px 0"},"type":"file"}]}
+```bash
+npm install
+npm run dev        # http://localhost:5173, API mocked by MSW
 ```
 
-Suppose the backend APIs are concurrently in the development process. So mock APIs in some way clean to continue your work.
+| Script               | What it does                                  |
+| -------------------- | --------------------------------------------- |
+| `npm run dev`        | Dev server with the mock API                  |
+| `npm run build`      | Type-check, then production build             |
+| `npm run test`       | Unit and component tests (Vitest), single run |
+| `npm run test:watch` | Tests in watch mode                           |
+| `npm run typecheck`  | `tsc -b`                                      |
+| `npm run lint`       | Oxlint with type-aware rules                  |
+| `npm run format`     | Prettier, write                               |
+| `npm run check`      | Type-check, lint, format check and tests      |
 
+## How it works
 
-## Implementation details
+```
+GET  /api/forms/:formId              -> form schema (JSON)
+POST /api/forms/:formId/submissions  -> multipart/form-data (text values + files)
+```
 
+1. `useFormSchema` fetches the schema and `parseFormSchema` validates it with Zod.
+2. `buildValidator` turns the fields into a Zod validator, `buildDefaultValues` into
+   the initial state. React Hook Form holds the values.
+3. `FieldRenderer` maps each field `type` to a component built from the design system.
+4. On submit, `toFormData` packages the values and `submitForm` posts them. A `422`
+   with `fieldErrors` is shown on the matching fields.
 
-Try to write your code as **reusable** and **readable** as possible. The architecture of your code and where you integrate your design system within the project are important to us.
+Supported field types: `input` (text, number), `textarea`, `select`, `file`.
 
-Also, don't forget to **document your code** and clear the reasons for all your decisions in the code.
+## Project structure
 
-It is more valuable to us that the project comes with unit tests.
+```
+src/
+  app/                    Page shell
+  design-system/          Tokens, base styles, UI primitives (no feature knowledge)
+  features/dynamic-form/
+    api/                  fetch wrapper, form endpoints
+    schema/               Zod contract of the server response, inferred types
+    validation/           Pure validators and the Zod validator builder
+    hooks/                useFormSchema, useDynamicForm
+    components/           DynamicFormLoader, DynamicForm, FieldRenderer, fields/
+    utils/                FormData packaging, default values, style allow-list
+    constants/            User-facing messages
+  lib/                    Small shared helpers
+  mocks/                  MSW handlers and the sample form
+  test/                   Test setup, factories, form harness
+```
 
-Please fork this repository and add your code to that. Don't forget that your commits are so important.
-So be sure that you're committing your code often with a proper commit message.
+Dependencies point one way: `app -> features -> design-system -> lib`. The design
+system never imports from a feature. See [docs/architecture.md](docs/architecture.md)
+for the decisions behind this layout.
 
+## The API contract
 
-## We all use AI. Don't be ashamed
+The sample response from the task is kept as it is, with three additions (the task
+allows restructuring):
 
-Everyone uses AI for everything. And we expect you to do the same. AI is a big part of our development process, and we care a lot about how you use AI tools during this task.
+- `required` on a field, so "all required fields are filled" is driven by the server.
+- `minLength` / `maxLength` in `props` for text rules.
+- Optional `title` and `submitLabel` at the top level.
 
-To earn our immunity after the AI takeover of Earth, we want to make sure you're using it properly.
+Numbers that arrive as strings (`"max": "2024"`) are coerced once, at the boundary.
+A field with an unknown `type` is skipped with a console warning and the rest of the
+form still renders, so the server can ship a new field type before the client knows it.
 
-Add a file named "ai.md" to your project. This file should contain the following information (the more explicit, the better):
+## Mock API
 
-1. What AI tools and models did you use?
-2. Explain the different stages of software development where you used AI help. Describe how you used your tools at each stage.
-3. We want to know how you prompt. So add your prompts to this file too. For each prompt, explain which stage you used it in, how you evaluated the result, and what you did to fix any misbehavior.
-4. Explain how you monitor your token usage and what you do to manage it. Link your tools or add your helper prompts.
+The backend is still in development, so the API is mocked with
+[MSW](https://mswjs.io/). The same handlers (`src/mocks/handlers.ts`) run in the
+browser through a service worker and in Node for the tests, so the app and the tests
+agree on one contract. Requests are real `fetch` calls, visible in the network tab.
 
-*There's a sample.ai.md file in the project representing the expected template. Don't forget: "ai.md" is the only file we expect you to write entirely by yourself.*
+To use a real backend, set this in `.env.local`:
+
+```
+VITE_API_MOCKING=disabled
+VITE_API_BASE_URL=https://example.com/api
+```
+
+No application code changes.
+
+## Validation
+
+| Rule                        | Source in the schema                             |
+| --------------------------- | ------------------------------------------------ |
+| Required                    | `required`                                       |
+| Text length                 | `props.minLength`, `props.maxLength`             |
+| Number and range            | `props.type: "number"`, `props.min`, `props.max` |
+| Value is one of the options | `props.options`                                  |
+| File format                 | `props.accept`                                   |
+| File size                   | `props.maxSize` (`"5MB"`)                        |
+| Single or multiple files    | `props.multiple`                                 |
+
+A field is validated on blur, then on every change once it has an error. On submit,
+focus moves to the first invalid field. Errors are linked to their control with
+`aria-describedby` and announced with `role="alert"`.
+
+## Testing
+
+```bash
+npm run test
+```
+
+- **Unit**: validators, validator builder, schema parsing, file rules, size parsing,
+  `FormData` packaging, style allow-list.
+- **API**: `formApi` against the MSW handlers in a Node environment, including the
+  real multipart body and the `422` path.
+- **Component**: the whole form through `DynamicFormLoader`, driven like a user with
+  Testing Library: rendering from the schema, validation, upload, submit, server
+  errors, load failure and retry.
+
+Tests query by role and label, so they also check the accessibility wiring.
+
+## Code quality
+
+- TypeScript in strict mode, plus `noUncheckedIndexedAccess`. No `any`.
+- Oxlint with type-aware rules, React hooks and `jsx-a11y`. typescript-eslint does
+  not support TypeScript 7 yet, which is why the linter is Oxlint and not ESLint.
+- Prettier for formatting.
+- Husky + lint-staged run the linter and Prettier on staged files before each commit.
+- Commits follow [Conventional Commits](docs/commit-convention.md).
+
+## Working with AI on this repo
+
+- [`CLAUDE.md`](CLAUDE.md) holds the project rules an AI assistant reads in every
+  session.
+- [`.claude/skills/add-field-type`](.claude/skills/add-field-type/SKILL.md) is a
+  project skill: the exact checklist for adding a new field type.
+- [`ai.md`](ai.md) is the AI usage report for this challenge.
