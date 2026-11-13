@@ -41,6 +41,16 @@ Nothing downstream checks for a missing `props` or a number that is a string.
 One malformed field does not fail the whole form. The envelope is parsed strictly,
 and each field is parsed on its own and skipped if it is invalid.
 
+## Validation: pure functions wrapped in Zod
+
+`validation/validators.ts` holds plain functions of the form
+`(value, field) => message | undefined`. `buildValidator.ts` wraps them in Zod types
+so React Hook Form can run them through its resolver.
+
+The split keeps the rules free of any form library, and their tests need no
+rendering. The client rules mirror what the server enforces. They do not replace it:
+the mock backend also checks required fields and answers `422`.
+
 ## Mocking with MSW
 
 Requests are intercepted at the network level, so the application code is the same
@@ -49,3 +59,9 @@ worker and the Node test server.
 
 The alternative was json-server. It needs a second process, and it cannot receive a
 multipart upload without custom middleware. Upload is the centre of this task.
+
+## Messages
+
+All user-facing text is in `constants/messages.ts`. The UI is Persian and
+right-to-left. Layout uses logical CSS properties (`margin-inline`, `text-align:
+start`), so it follows the document direction.
