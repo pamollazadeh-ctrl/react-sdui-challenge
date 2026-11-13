@@ -55,6 +55,22 @@ VITE_API_BASE_URL=https://example.com/api
 
 No application code changes.
 
+## Validation
+
+| Rule                        | Source in the schema                             |
+| --------------------------- | ------------------------------------------------ |
+| Required                    | `required`                                       |
+| Text length                 | `props.minLength`, `props.maxLength`             |
+| Number and range            | `props.type: "number"`, `props.min`, `props.max` |
+| Value is one of the options | `props.options`                                  |
+| File format                 | `props.accept`                                   |
+| File size                   | `props.maxSize` (`"5MB"`)                        |
+| Single or multiple files    | `props.multiple`                                 |
+
+A field is validated on blur, then on every change once it has an error. On submit,
+focus moves to the first invalid field. Errors are linked to their control with
+`aria-describedby` and announced with `role="alert"`.
+
 ## Code quality
 
 - TypeScript in strict mode, plus `noUncheckedIndexedAccess`. No `any`.

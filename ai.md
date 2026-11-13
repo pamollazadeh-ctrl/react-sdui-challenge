@@ -223,6 +223,42 @@ picked files with the ones already selected) goes in its own function with a uni
 Before you write code, show me the component list with the props of each one and
 wait for my OK.
 
+### prompt #14
+
+MODEL: Sonnet 5.5
+TOKEN: 0.2M
+
+alidation only. Pure logic: no React components, no rendering, no API calls.
+The form UI comes in the next step.
+
+Read README.md for the rules the task asks for, and schema/formSchema.ts for what a
+field can carry (required, minLength/maxLength, number min/max, options, and for files
+accept, maxSize like "5MB", multiple).
+
+I want, under src/features/dynamic-form:
+
+- validation/validators.ts: plain functions of the shape
+  (value, field) => message | undefined, one per rule. No form library inside them.
+- validation/fileRules.ts: parsing "5MB" into bytes, matching a file against `accept`
+  (extensions and mime types like image/*), single vs multiple.
+- validation/buildValidator.ts: takes the parsed form schema and builds one Zod schema
+  for the whole form, so React Hook Form can use it through its resolver later.
+- constants/messages.ts: every user-facing message in one place. The UI is Persian,
+  so no message strings inside the validators.
+
+Rules: required, text length, number and range, value is one of the options,
+file format, file size, single or multiple files.
+
+Tests in the same change, without rendering anything. For each rule: a valid value,
+an invalid one, and the edges (empty string vs undefined, exactly the limit, an
+optional field left empty must pass, a number typed as text, a file with no extension,
+upper-case extension, a bad maxSize string from the server).
+
+Before you write code, list any rule where the README is not clear about the expected
+behaviour, and wait for my answer.
+
+When you finish, run `npm run check` and show me the output.
+
 ## 4. Token Usage Monitoring
 
 I do watch token usage, and it affects which model I pick and how I write prompts. But the goal is not the smallest number. I want a good balance between quality, reasoning, speed and cost.
