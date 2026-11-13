@@ -1,0 +1,43 @@
+/*
+ * Design tokens: the single source of truth for colour, spacing, radius and type.
+ * Components read these variables only, so a rebrand is a change to this file.
+ */
+:root {
+  color-scheme: light;
+
+  --color-bg: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-text: #1c1d22;
+  --color-text-muted: #5d6170;
+  --color-border: #c9ccd6;
+  --color-primary: #2f54eb;
+  --color-primary-hover: #1d3fc4;
+  --color-on-primary: #ffffff;
+  --color-danger: #c62828;
+  --color-danger-bg: #fdecea;
+  --color-success: #1b7a3d;
+  --color-success-bg: #e8f5ec;
+  --color-focus: #2f54eb;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --radius-sm: 5px;
+  --radius-md: 10px;
+
+  --font-family: Vazirmatn, "Segoe UI", Tahoma, system-ui, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-title: 1.5rem;
+
+  --control-height-small: 34px;
+  --control-height-medium: 42px;
+  --control-height-large: 50px;
+
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 8%), 0 8px 24px rgb(0 0 0 / 6%);
+}

@@ -9,6 +9,20 @@ Read `README.md` for the overview and `docs/architecture.md` for the decisions.
 - `npm run test -- <path>` runs one test file.
 - `npm run dev` starts the app with the MSW mock API.
 
+## Rules
+
+- Layers import one way: `app -> features -> design-system -> lib`. The design system never imports a feature.
+- Features import UI from `@/design-system` only, never from a deep path.
+- Components use design tokens from `design-system/styles/tokens.css`. No hard-coded colours or spacing.
+- Every file stays under 100 lines. Split before it grows.
+- No `any`, no non-null `!`, no type casts to silence the compiler.
+- Icons come from `lucide-react`. No raw `<svg>`.
+- Logic lives in hooks and pure functions. Components render.
+- User-facing text goes in `features/dynamic-form/constants/messages.ts` (Persian, RTL).
+- Forms use React Hook Form with a Zod resolver.
+- A comment explains why a decision was made, not what the line does.
+- The linter is Oxlint. Do not add ESLint: typescript-eslint does not support TypeScript 7.
+
 ## Tests
 
 - Vitest + Testing Library. Query by role and label, not by class or test id.

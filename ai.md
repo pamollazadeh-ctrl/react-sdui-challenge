@@ -189,6 +189,40 @@ I want, under src/features/dynamic-form:
   form, and submit the form as multipart/form-data because of the file upload.
   Base URL comes from an env variable.
 
+### prompt #13
+
+MODEL: Sonnet 5.5
+TOKEN: 0.5M
+
+design system only. Nothing here may import from features/ or know that
+the form comes from a server. No form logic, no validation, no API calls.
+
+Read README.md for the field types and props the server can send (sizes, placeholder,
+multiple files and so on), so the components can express them, but keep the component
+props generic.
+
+I want, under src/design-system:
+
+- styles/: tokens.css with colours, spacing, radius, type and control heights as CSS
+  variables, a small base.css reset, and one index.css that imports both.
+  Components use only the tokens, no hard-coded values.
+- components/, each with its own CSS module: TextInput, TextArea, SelectBox,
+  FileUpload (single and multiple, shows the selected files and lets me remove one),
+  FieldShell (label, required mark, hint, error message), Button and Alert.
+- one shared size type (small / medium / large) that maps to the height tokens
+- index.ts as the only public entry. Features will import from @/design-system only.
+
+Accessibility is part of this step, not a later one: every control is linked to its
+label, the error text is connected with aria-describedby, aria-invalid is set on
+error, and everything works with the keyboard. Put the ARIA wiring in one helper so
+the controls don't each repeat it.
+
+Plain CSS modules, no UI library and no CSS-in-JS. Pure logic (like merging newly
+picked files with the ones already selected) goes in its own function with a unit test.
+
+Before you write code, show me the component list with the props of each one and
+wait for my OK.
+
 ## 4. Token Usage Monitoring
 
 I do watch token usage, and it affects which model I pick and how I write prompts. But the goal is not the smallest number. I want a good balance between quality, reasoning, speed and cost.
