@@ -26,6 +26,45 @@ npm run dev        # http://localhost:5173, API mocked by MSW
 | `npm run format`     | Prettier, write                               |
 | `npm run check`      | Type-check, lint, format check and tests      |
 
+## How it works
+
+```
+GET  /api/forms/:formId              -> form schema (JSON)
+POST /api/forms/:formId/submissions  -> multipart/form-data (text values + files)
+```
+
+1. `useFormSchema` fetches the schema and `parseFormSchema` validates it with Zod.
+2. `buildValidator` turns the fields into a Zod validator, `buildDefaultValues` into
+   the initial state. React Hook Form holds the values.
+3. `FieldRenderer` maps each field `type` to a component built from the design system.
+4. On submit, `toFormData` packages the values and `submitForm` posts them. A `422`
+   with `fieldErrors` is shown on the matching fields.
+
+Supported field types: `input` (text, number), `textarea`, `select`, `file`.
+
+## Project structure
+
+```
+src/
+  app/                    Page shell
+  design-system/          Tokens, base styles, UI primitives (no feature knowledge)
+  features/dynamic-form/
+    api/                  fetch wrapper, form endpoints
+    schema/               Zod contract of the server response, inferred types
+    validation/           Pure validators and the Zod validator builder
+    hooks/                useFormSchema, useDynamicForm
+    components/           DynamicFormLoader, DynamicForm, FieldRenderer, fields/
+    utils/                FormData packaging, default values, style allow-list
+    constants/            User-facing messages
+  lib/                    Small shared helpers
+  mocks/                  MSW handlers and the sample form
+  test/                   Test setup, factories, form harness
+```
+
+Dependencies point one way: `app -> features -> design-system -> lib`. The design
+system never imports from a feature. See [docs/architecture.md](docs/architecture.md)
+for the decisions behind this layout.
+
 ## The API contract
 
 The sample response from the task is kept as it is, with three additions (the task
@@ -70,6 +109,22 @@ No application code changes.
 A field is validated on blur, then on every change once it has an error. On submit,
 focus moves to the first invalid field. Errors are linked to their control with
 `aria-describedby` and announced with `role="alert"`.
+
+## Testing
+
+```bash
+npm run test
+```
+
+- **Unit**: validators, validator builder, schema parsing, file rules, size parsing,
+  `FormData` packaging, style allow-list.
+- **API**: `formApi` against the MSW handlers in a Node environment, including the
+  real multipart body and the `422` path.
+- **Component**: the whole form through `DynamicFormLoader`, driven like a user with
+  Testing Library: rendering from the schema, validation, upload, submit, server
+  errors, load failure and retry.
+
+Tests query by role and label, so they also check the accessibility wiring.
 
 ## Code quality
 
